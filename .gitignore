@@ -1,2 +1,3 @@
 .directory
 /ice-dyninvocation-client-py
+__pycache__
