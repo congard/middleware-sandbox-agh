@@ -1,0 +1,144 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "pl.edu.agh.distributed.middleware.hw.grpcserver.bulb";
+option java_outer_classname = "BulbProto";
+
+package bulb;
+
+service BulbService {
+  rpc GetAvailable (Empty) returns (BulbList) {}
+  rpc GetBulb (Identifier) returns (BulbReply) {}
+
+  rpc GetColor (Identifier) returns (ColorReply) {}
+  rpc GetBrightness (Identifier) returns (BrightnessReply) {}
+  rpc GetSchedule (Identifier) returns (ScheduleReply) {}
+
+  rpc GetState (Identifier) returns (StateReply) {}
+
+  rpc TurnOn (Identifier) returns (StatusReply) {}
+  rpc TurnOff (Identifier) returns (StatusReply) {}
+
+  rpc SetColor (ColorChangeRequest) returns (StatusReply) {}
+  rpc SetBrightness (BrightnessChangeRequest) returns (StatusReply) {}
+
+  rpc AddScheduleEntry (ScheduleEntry) returns (StatusReply) {}
+  rpc RemoveScheduleEntry (RemoveScheduleEntryRequest) returns (StatusReply) {}
+}
+
+message Empty {}
+
+message Identifier {
+  uint64 id = 1;
+}
+
+message BulbList {
+  repeated Bulb bulbs = 1;
+}
+
+message Bulb {
+  enum Feature {
+    DYNAMIC_COLOR = 0;
+    DYNAMIC_BRIGHTNESS = 1;
+    SCHEDULE = 2;
+  }
+
+  enum State {
+    OFF = 0;
+    ON = 1;
+  }
+
+  uint64 id = 1;
+  string name = 2;
+  repeated Feature features = 3;
+  repeated string colors = 4;
+  repeated uint32 brightnessLevels = 5;
+
+  State state = 6;
+
+  optional string currColor = 7;
+  optional uint32 currBrightnessLevel = 8;
+  repeated ScheduleEntry scheduleEntries = 9;
+}
+
+message ScheduleEntry {
+  // client -> server: bulb id
+  // server -> client: entry id
+  uint64 id = 1;
+
+  // in seconds
+  uint64 delay = 2;
+
+  optional Bulb.State state = 3;
+  optional string color = 4;
+  optional uint32 brightnessLevel = 5;
+}
+
+message RemoveScheduleEntryRequest {
+  uint64 bulbId = 1;
+  uint64 entryId = 2;
+}
+
+message Error {
+  enum Code {
+    FEATURE_NOT_SUPPORTED = 0;
+    DEVICE_NOT_FOUND = 1;
+    COLOR_NOT_SUPPORTED = 2;
+    BRIGHTNESS_LEVEL_NOT_SUPPORTED = 3;
+    ACTION_HAS_NO_EFFECT = 4;
+  }
+
+  Code code = 1;
+  string message = 2;
+}
+
+message BulbReply {
+  oneof payload {
+    Bulb bulb = 1;
+    Error error = 2;
+  }
+}
+
+message StateReply {
+  oneof payload {
+    Bulb.State state = 1;
+    Error error = 2;
+  }
+}
+
+message ColorChangeRequest {
+  uint64 id = 1;
+  string color = 2;
+}
+
+message BrightnessChangeRequest {
+  uint64 id = 1;
+  uint32 level = 2;
+}
+
+message StatusReply {
+  optional Error error = 1;
+}
+
+message ColorReply {
+  oneof payload {
+    string color = 1;
+    Error error = 2;
+  }
+}
+
+message BrightnessReply {
+  oneof payload {
+    uint32 level = 1;
+    Error error = 2;
+  }
+}
+
+message ScheduleEntries {
+
+}
+
+message ScheduleReply {
+  repeated ScheduleEntry entries = 1;
+  optional Error error = 2;
+}

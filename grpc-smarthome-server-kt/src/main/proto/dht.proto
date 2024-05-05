@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "pl.edu.agh.distributed.middleware.hw.grpcserver.dht";
+option java_outer_classname = "DHTProto";
+
+package dht;
+
+service DHTService {
+  rpc GetAvailable (Empty) returns (DeviceList) {}
+  rpc GetDevice (DeviceIdentifier) returns (DeviceReply) {}
+  rpc GetTemperature (DeviceIdentifier) returns (TemperatureReply) {}
+  rpc GetRelativeHumidity (DeviceIdentifier) returns (RelativeHumidityReply) {}
+}
+
+message Empty {}
+
+message DeviceList {
+  repeated Device devices = 1;
+}
+
+message Device {
+  enum Feature {
+    TEMPERATURE = 0;
+    RELATIVE_HUMIDITY = 1;
+  }
+
+  uint64 id = 1;
+  string name = 2;
+  repeated Feature features = 3;
+}
+
+message DeviceReply {
+  oneof payload {
+    Device device = 1;
+    Error error = 2;
+  }
+}
+
+message DeviceIdentifier {
+  uint64 id = 1;
+}
+
+message Error {
+  enum Code {
+    FEATURE_NOT_SUPPORTED = 0;
+    DEVICE_NOT_FOUND = 1;
+  }
+
+  Code code = 1;
+  string message = 2;
+}
+
+message TemperatureReply {
+  oneof payload {
+    float tempCelsius = 1;
+    Error error = 2;
+  }
+}
+
+message RelativeHumidityReply {
+  oneof payload {
+    float relativeHumidity = 1;
+    Error error = 2;
+  }
+}
