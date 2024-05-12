@@ -134,10 +134,6 @@ message BrightnessReply {
   }
 }
 
-message ScheduleEntries {
-
-}
-
 message ScheduleReply {
   repeated ScheduleEntry entries = 1;
   optional Error error = 2;
