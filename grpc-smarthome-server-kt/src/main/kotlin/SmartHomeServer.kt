@@ -12,7 +12,6 @@ class SmartHomeServer(private val port: Int) {
             .build()
 
     fun start() {
-
         server.start()
         logger.log { "Server started, listening on $port" }
         Runtime.getRuntime().addShutdownHook(
@@ -20,7 +19,7 @@ class SmartHomeServer(private val port: Int) {
                 logger.log { "*** shutting down gRPC server since JVM is shutting down" }
                 this@SmartHomeServer.stop()
                 logger.log { "*** server shut down" }
-            },
+            }
         )
     }
 
